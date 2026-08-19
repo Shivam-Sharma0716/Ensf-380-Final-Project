@@ -1,0 +1,173 @@
+classDiagram
+    class Staff {
+        <<abstract>>
+        -String name
+        -String staffId
+        -static int totalStaffCount
+        +Staff(String name, String staffId)
+        +String getName()
+        +String getStaffId()
+        +static int getTotalStaffCount()
+        +abstract String getRole()*
+        +String toString()
+    }
+
+    class Veterinarian {
+        -String expertise
+        +Veterinarian(String name, String staffId, String expertise)
+        +String getExpertise()
+        +String getRole()
+        +String toString()
+    }
+
+    class Receptionist {
+        +Receptionist(String name, String staffId)
+        +String getRole()
+        +String toString()
+    }
+
+    class Person {
+        <<abstract>>
+        -String name
+        -String phoneNumber
+        -String email
+        +Person(String name, String phoneNumber, String email)
+        +String getName()
+        +String getPhoneNumber()
+        +String getEmail()
+        +abstract String getContactInfo()*
+        +String toString()
+    }
+
+    class Owner {
+        -static int totalOwnerCount
+        -List~Pet~ pets
+        +Owner(String name, String phoneNumber, String email)
+        +void addPet(Pet pet)
+        +List~Pet~ getPets()
+        +static int getTotalOwnerCount()
+        +String getContactInfo()
+    }
+
+    class Pet {
+        <<abstract>>
+        -String name
+        -int age
+        -Owner owner
+        -String type
+        +Pet(String name, int age, Owner owner, String type)
+        +String getName()
+        +int getAge()
+        +Owner getOwner()
+        +String getType()
+        +abstract String getSpecialCharacteristics()*
+        +String toString()
+    }
+
+    class Dog {
+        -boolean isVaccinated
+        +Dog(String name, int age, Owner owner, boolean isVaccinated)
+        +boolean isVaccinated()
+        +String getSpecialCharacteristics()
+        +String toString()
+    }
+
+    class Cat {
+        -boolean isIndoor
+        +Cat(String name, int age, Owner owner, boolean isIndoor)
+        +boolean isIndoor()
+        +String getSpecialCharacteristics()
+        +String toString()
+    }
+
+    class Appointment {
+        -Pet pet
+        -Veterinarian veterinarian
+        -Date dateTime
+        -String notes
+        -static final int MAX_APPOINTMENTS_PER_DAY
+        +Appointment(Pet pet, Veterinarian veterinarian, Date dateTime, String notes)
+        +Pet getPet()
+        +Veterinarian getVeterinarian()
+        +Date getDateTime()
+        +String getNotes()
+        +static int getMaxAppointmentsPerDay()
+        +String toString()
+    }
+
+    class AppointmentManager {
+        -List~Appointment~ appointments
+        +AppointmentManager()
+        +void addAppointment(Appointment appointment) throws SchedulingConflictException, VetOverloadedException
+        +void cancelAppointment(Appointment appointment)
+        +List~Appointment~ getAppointmentsForVeterinarian(Veterinarian vet, Date date)
+        +List~Appointment~ getAppointmentsForPet(Pet pet)
+        +List~Appointment~ getAllAppointments()
+    }
+
+    class DatabaseManager {
+        -static final String DB_URL
+        -static final String DB_USER
+        -static final String DB_PASSWORD
+        +static Connection getConnection() throws DatabaseConnectionException
+        +static void loadAllData() throws SQLException
+        +static void saveOwner(Owner owner) throws SQLException
+        +static void savePet(Pet pet) throws SQLException
+        +static void saveAppointment(Appointment appointment) throws SQLException
+        +static void updateAppointment(Appointment appointment) throws SQLException
+    }
+
+    class ClinicSystem {
+        -AppointmentManager appointmentManager
+        -List~Owner~ owners
+        -List~Staff~ staff
+        -List~Pet~ pets
+        +ClinicSystem()
+        +void initialize()
+        +void displayMainMenu()
+        -void handleAddOwner()
+        -void handleAddPet()
+        -void handleScheduleAppointment()
+        -void handleCancelAppointment()
+        -void handleViewAppointments()
+        -void handleViewOwners()
+        -void handleViewPets()
+        -void handleViewStaff()
+    }
+
+    class SchedulingConflictException {
+        +SchedulingConflictException(String message)
+    }
+
+    class VetOverloadedException {
+        +VetOverloadedException(String message)
+    }
+
+    class DatabaseConnectionException {
+        +DatabaseConnectionException(String message, Throwable cause)
+    }
+
+    Staff <|-- Veterinarian
+    Staff <|-- Receptionist
+
+    Person <|-- Owner
+    Pet <|-- Dog
+    Pet <|-- Cat
+    Owner "1" --> "0..*" Pet
+
+    AppointmentManager --> Appointment
+    AppointmentManager --> Veterinarian
+    AppointmentManager --> Pet
+    Appointment "1" --> "1" Pet
+    Appointment "1" --> "1" Veterinarian
+    Appointment "1" --> "1" Pet
+
+    ClinicSystem --> AppointmentManager
+    ClinicSystem --> "0..*" Owner
+    ClinicSystem --> "0..*" Staff
+    ClinicSystem --> "0..*" Pet
+    ClinicSystem --> DatabaseManager
+
+    DatabaseManager ..> DatabaseConnectionException : throws
+    AppointmentManager ..> SchedulingConflictException : throws
+    AppointmentManager ..> VetOverloadedException : throws
